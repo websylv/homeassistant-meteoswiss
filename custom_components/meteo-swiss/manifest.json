@@ -1,0 +1,10 @@
+{
+    "domain": "meteo-swiss",
+    "name": "Meteo Swiss",
+    "documentation": "https://www.webhu.net",
+    "dependencies": [],
+    "codeowners": ["websylv"],
+    "requirements": [
+        "meteoswiss>=0.0.6"
+      ]
+  }
