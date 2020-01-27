@@ -68,14 +68,14 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
     lon = config.get(CONF_LONGITUDE, hass.config.longitude)
     station = config.get(CONF_STATION)
     postcode = config.get(CONF_POSTCODE)
-    displayTime = config.get(CONF_DISPLAYTIME)
+    
     _LOGGER.debug("Configuration :")
     _LOGGER.debug("lat: %s"%lat)
     _LOGGER.debug("lon: %s"%lon)
     _LOGGER.debug("station: %s"%station)
     _LOGGER.debug("postcode: %s"%postcode)
-    _LOGGER.debug("displayTime: %s"%displayTime)
-    msConfig={"coord":{"lat":lat,"lon":lon},"postcode": postcode, "station":station,"displayTime":displayTime}
+    
+    msConfig={"coord":{"lat":lat,"lon":lon},"postcode": postcode, "station":station}
     async_add_entities([MeteoSwissWeather(msConfig,config)], True)
 
 
@@ -97,7 +97,7 @@ class MeteoSwissWeather(WeatherEntity):
         self._condition = None
         self._forecast = None
         self._description = None
-        self._displayTime = None
+        
         
         _LOGGER.debug("meteo-swiss INIT")
         with async_timeout.timeout(10):
@@ -123,7 +123,7 @@ class MeteoSwissWeather(WeatherEntity):
             allStation = ms.get_all_stations()
             self._station_name = allStation[self.stationCode]['name']
         
-        self._displayTime = msConfig["displayTime"]
+        
 
     async def async_update(self):
         """Update Condition and Forecast."""
@@ -136,12 +136,7 @@ class MeteoSwissWeather(WeatherEntity):
           
     @property
     def name(self):
-        if(self._displayTime):
-            conditionTime = self._condition[0]["time"]
-            m = re.search(r"^(?P<Y>\d{4})(?P<M>\d{2})(?P<D>\d{2})(?P<h>\d{2})(?P<m>\d{2})",str(conditionTime)) 
-            return "%s - %s:%s"%(self._station_name,int(m["h"])+1,m["m"])
-        else:
-            return self._station_name
+       return self._station_name
     @property
     def temperature(self):
         return float(self._condition[0]['tre200s0'])

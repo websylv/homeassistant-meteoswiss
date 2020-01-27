@@ -1,0 +1,5 @@
+{
+    "name": "Meteo Swiss",
+    "render_readme" : true,
+    "domains": "weather",
+  }
