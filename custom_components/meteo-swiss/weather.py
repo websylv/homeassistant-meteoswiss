@@ -4,6 +4,7 @@ import datetime
 import logging
 import meteoswiss as ms
 import voluptuous as vol
+import re
 
 from homeassistant.components.weather import (
     ATTR_FORECAST_CONDITION,
@@ -13,15 +14,20 @@ from homeassistant.components.weather import (
     PLATFORM_SCHEMA,
     WeatherEntity,
 )
+from homeassistant.const import (
+    TEMP_CELSIUS,
+    CONF_LATITUDE, 
+    CONF_LONGITUDE,
+)
 import homeassistant.util.dt as dt_util
-from homeassistant.const import (TEMP_CELSIUS,CONF_LATITUDE, CONF_LONGITUDE)
+
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.util import Throttle
 import homeassistant.helpers.config_validation as cv
 import async_timeout
 _LOGGER = logging.getLogger(__name__)
 
-SCAN_INTERVAL = datetime.timedelta(minutes=1)
+SCAN_INTERVAL = datetime.timedelta(minutes=10)
 
 CONDITION_CLASSES = {
     "clear-night": [101,102],
@@ -40,12 +46,17 @@ CONDITION_CLASSES = {
     "windy-variant": [],
     "exceptional": [],
 }
-
+CONF_POSTCODE = "postcode"
+CONF_STATION="station"
+CONF_DISPLAYTIME="displaytime"
 PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
     {
         
         vol.Inclusive(CONF_LATITUDE, "latlon"): cv.latitude,
         vol.Inclusive(CONF_LONGITUDE, "latlon"): cv.longitude,
+        vol.Optional(CONF_POSTCODE,default="auto"): cv.string,
+        vol.Optional(CONF_STATION,default="auto") :cv.string,
+        vol.Optional(CONF_DISPLAYTIME,default="True") :cv.boolean
        }
 )
 
@@ -55,10 +66,21 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
    
     lat = config.get(CONF_LATITUDE, hass.config.latitude)
     lon = config.get(CONF_LONGITUDE, hass.config.longitude)
-    async_add_entities([MeteoSwissWeather(lat,lon,config)], True)
+    station = config.get(CONF_STATION)
+    postcode = config.get(CONF_POSTCODE)
+    displayTime = config.get(CONF_DISPLAYTIME)
+    _LOGGER.debug("Configuration :")
+    _LOGGER.debug("lat: %s"%lat)
+    _LOGGER.debug("lon: %s"%lon)
+    _LOGGER.debug("station: %s"%station)
+    _LOGGER.debug("postcode: %s"%postcode)
+    _LOGGER.debug("displayTime: %s"%displayTime)
+    msConfig={"coord":{"lat":lat,"lon":lon},"postcode": postcode, "station":station,"displayTime":displayTime}
+    async_add_entities([MeteoSwissWeather(msConfig,config)], True)
 
 
 class MeteoSwissWeather(WeatherEntity):
+     #Using openstreetmap to get post code from HA configuration
     def getPostCode(self,lat,lon):
         s = requests.Session()
         s.headers.update({"Accept":"text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
@@ -67,35 +89,59 @@ class MeteoSwissWeather(WeatherEntity):
         geoData = json.loads(geoData)
         return geoData["address"]["postcode"]
 
-    def __init__(self,lat,lon,config):
+
+    def __init__(self,msConfig,config):
         """Initialise the platform with a data instance and station name."""
         
         self._station_name = None
         self._condition = None
         self._forecast = None
         self._description = None
+        self._displayTime = None
         
         _LOGGER.debug("meteo-swiss INIT")
-        
-        self.postCode = self.getPostCode(str(lat),str(lon))
-        _LOGGER.debug("Lat : "+str(lat)+" lon : "+str(lon)+" --> found post code :"+self.postCode)
+        with async_timeout.timeout(10):
+
+            #managin post code if not set, trying to use coordinates
+            if(msConfig["postcode"] == "auto"):
+                self.postCode = self.getPostCode(str(msConfig["coord"]["lat"]),str(msConfig["coord"]["lon"]))
+                _LOGGER.debug("Automatic post code Lat : "+str(msConfig["coord"]["lat"])+" lon : "+str(msConfig["coord"]["lon"])+" --> found post code :"+self.postCode)
+                
+            else:
+                _LOGGER.debug("Using fixed post code : "+msConfig["postcode"])
+                self.postCode = msConfig["postcode"]
+
+            if(msConfig["station"]== "auto"):
+                self.stationCode = ms.get_closest_station(msConfig["coord"]["lat"],msConfig["coord"]["lon"])
+                _LOGGER.debug("Automatic station searching closest station of : "+str(msConfig["coord"]["lat"])+" lon : "+str(msConfig["coord"]["lon"])+" -->"+self.stationCode)
+            else:
+                _LOGGER.debug("Using fixed station code : "+msConfig["station"])
+                
+        if(not re.match(r"\d{4}", self.postCode)):
+            _LOGGER.error("Postcode : "+self.postCode+" is not a swizerland post code")
         with async_timeout.timeout(10):
             allStation = ms.get_all_stations()
-            self._station_name = allStation['GVE']['name']
+            self._station_name = allStation[self.stationCode]['name']
+        
+        self._displayTime = msConfig["displayTime"]
 
     async def async_update(self):
         """Update Condition and Forecast."""
         _LOGGER.debug("meteo-swiss async update")
         
         with async_timeout.timeout(10):
-            self._condition = ms.get_current_condition("GVE")
+            self._condition = ms.get_current_condition(self.stationCode)
             self._forecastData = ms.get_forecast(self.postCode)
             
-        
-        #with async_timeout.timeout(10):    
+          
     @property
     def name(self):
-        return self._station_name
+        if(self._displayTime):
+            conditionTime = self._condition[0]["time"]
+            m = re.search(r"^(?P<Y>\d{4})(?P<M>\d{2})(?P<D>\d{2})(?P<h>\d{2})(?P<m>\d{2})",str(conditionTime)) 
+            return "%s - %s:%s"%(self._station_name,int(m["h"])+1,m["m"])
+        else:
+            return self._station_name
     @property
     def temperature(self):
         return float(self._condition[0]['tre200s0'])
@@ -105,7 +151,6 @@ class MeteoSwissWeather(WeatherEntity):
     @property
     def state(self):
         symbolId = self._forecastData["data"]["current"]['weather_symbol_id']
-        print(self._forecastData)
         cond =  next(
                     (
                         k
