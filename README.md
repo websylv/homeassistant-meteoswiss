@@ -13,21 +13,21 @@ Current conditions
 
 Automatic configuration based on your location:
 
-`
+```
 # Example configuration.yaml entry  
 weather:
     - platform: meteo-swiss
-`
+```
 
 Forced configuration:
 
-`     
+```     
 # Example configuration.yaml entry  
 weather:
     - platform: meteo-swiss
       postcode: 1201 #Geneva post code
       station: GVE #Cointrin weather station
-`
+```
 
 ## Configuration variables
 **postcode** 
