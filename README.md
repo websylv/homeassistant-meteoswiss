@@ -13,7 +13,7 @@ Current conditions
 
 Automatic configuration based on your location:
 
-```
+```YAML
 # Example configuration.yaml entry  
 weather:
     - platform: meteo-swiss
@@ -21,7 +21,7 @@ weather:
 
 Forced configuration:
 
-```     
+```YAML     
 # Example configuration.yaml entry  
 weather:
     - platform: meteo-swiss
@@ -31,16 +31,21 @@ weather:
 
 ## Configuration variables
 **postcode** 
+
 	(string)(Optional)
+
 	Post code of the location for the forecast. 
+
 	If not provided the post code is determined by the location configured in home assistant
 	
 **station**
 	(string)(Optional)
+
 	Meteo Swiss weather station code. This code can be found in : [https://data.geo.admin.ch/ch.meteoschweiz.messwerte-aktuell/info/VQHA80_en.txt](https://data.geo.admin.ch/ch.meteoschweiz.messwerte-aktuell/info/VQHA80_en.txt)
 	If not provided the closest from you location is use
 
 **displayTime**
 	(boolean)(Optional)
+	
 	Display time information next to the location. Enable by default
     	
