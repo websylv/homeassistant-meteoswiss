@@ -49,6 +49,7 @@ CONDITION_CLASSES = {
 CONF_POSTCODE = "postcode"
 CONF_STATION="station"
 CONF_DISPLAYTIME="displaytime"
+CONF_NAME = "name"
 PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
     {
         
@@ -56,7 +57,7 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
         vol.Inclusive(CONF_LONGITUDE, "latlon"): cv.longitude,
         vol.Optional(CONF_POSTCODE,default="auto"): cv.string,
         vol.Optional(CONF_STATION,default="auto") :cv.string,
-        vol.Optional(CONF_DISPLAYTIME,default="True") :cv.boolean
+        vol.Optional(CONF_NAME,default="auto") :cv.string
        }
 )
 
@@ -68,14 +69,16 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
     lon = config.get(CONF_LONGITUDE, hass.config.longitude)
     station = config.get(CONF_STATION)
     postcode = config.get(CONF_POSTCODE)
-    
+    name = config.get(CONF_NAME)
+
     _LOGGER.debug("Configuration :")
+    _LOGGER.debug("name: %s"%name)
     _LOGGER.debug("lat: %s"%lat)
     _LOGGER.debug("lon: %s"%lon)
     _LOGGER.debug("station: %s"%station)
     _LOGGER.debug("postcode: %s"%postcode)
     
-    msConfig={"coord":{"lat":lat,"lon":lon},"postcode": postcode, "station":station}
+    msConfig={"coord":{"lat":lat,"lon":lon},"postcode": postcode, "station":station,"name":name}
     async_add_entities([MeteoSwissWeather(msConfig,config)], True)
 
 
@@ -121,7 +124,14 @@ class MeteoSwissWeather(WeatherEntity):
             _LOGGER.error("Postcode : "+self.postCode+" is not a swizerland post code")
         with async_timeout.timeout(10):
             allStation = ms.get_all_stations()
-            self._station_name = allStation[self.stationCode]['name']
+
+            #Manage manual station name
+            if(msConfig["name"]== "auto"):
+                self._station_name = allStation[self.stationCode]['name']
+            else:
+                self._station_name = msConfig["name"]
+            
+            
         
         
 
