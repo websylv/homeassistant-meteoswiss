@@ -2,5 +2,6 @@
     "name": "Meteo Swiss",
     "render_readme" : true,
     "domains": "weather",
-    "iot_class" : "weather"
+    "iot_class" : "weather",
+    "country": "CH"
   }
