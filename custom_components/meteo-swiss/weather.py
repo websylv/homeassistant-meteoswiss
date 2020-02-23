@@ -118,6 +118,7 @@ class MeteoSwissWeather(WeatherEntity):
                 self.stationCode = ms.get_closest_station(msConfig["coord"]["lat"],msConfig["coord"]["lon"])
                 _LOGGER.debug("Automatic station searching closest station of : "+str(msConfig["coord"]["lat"])+" lon : "+str(msConfig["coord"]["lon"])+" -->"+self.stationCode)
             else:
+                self.stationCode = msConfig["station"]
                 _LOGGER.debug("Using fixed station code : "+msConfig["station"])
                 
         if(not re.match(r"\d{4}", self.postCode)):
