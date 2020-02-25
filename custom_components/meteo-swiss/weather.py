@@ -5,6 +5,7 @@ import logging
 import meteoswiss as ms
 import voluptuous as vol
 import re
+import sys
 
 from homeassistant.components.weather import (
     ATTR_FORECAST_CONDITION,
@@ -29,16 +30,20 @@ _LOGGER = logging.getLogger(__name__)
 
 SCAN_INTERVAL = datetime.timedelta(minutes=10)
 
+#Mapping for conditions vs icon ID of meteoswiss
+#ID < 100 for day icons
+#ID > 100 for night icons
+#Meteo swiss has more lvl for cloudy an rainy than home assistant
 CONDITION_CLASSES = {
     "clear-night": [101],
     "cloudy": [5,35,105,135],
     "fog": [27,28,127,128],
     "hail": [],
     "lightning": [12,112],
-    "lightning-rainy": [6,13,23,24,25,32,106,113,123,124,125,132],
+    "lightning-rainy": [13,23,24,25,32,113,123,124,125,132],
     "partlycloudy": [2,3,4,102,103,104],
     "pouring": [20,120],
-    "rainy": [9,14,17,33,109,114,117,133],
+    "rainy": [6,9,14,17,33,106,109,114,117,133],
     "snowy": [8,11,16,19,22,30,34,108,111,116,119,122,130,134],
     "snowy-rainy": [7,10,15,18,21,29,31,107,110,115,118,121,129,131],
     "sunny": [1,26,126],
@@ -50,15 +55,16 @@ CONF_POSTCODE = "postcode"
 CONF_STATION="station"
 CONF_DISPLAYTIME="displaytime"
 CONF_NAME = "name"
+
+#Configuration variables for configuration.yaml
 PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
-    {
-        
+    {  
         vol.Inclusive(CONF_LATITUDE, "latlon"): cv.latitude,
         vol.Inclusive(CONF_LONGITUDE, "latlon"): cv.longitude,
         vol.Optional(CONF_POSTCODE,default="auto"): cv.string,
         vol.Optional(CONF_STATION,default="auto") :cv.string,
         vol.Optional(CONF_NAME,default="auto") :cv.string
-       }
+    }
 )
 
 
@@ -114,23 +120,39 @@ class MeteoSwissWeather(WeatherEntity):
                 _LOGGER.debug("Using fixed post code : "+msConfig["postcode"])
                 self.postCode = msConfig["postcode"]
 
+            #get closest station
             if(msConfig["station"]== "auto"):
                 self.stationCode = ms.get_closest_station(msConfig["coord"]["lat"],msConfig["coord"]["lon"])
                 _LOGGER.debug("Automatic station searching closest station of : "+str(msConfig["coord"]["lat"])+" lon : "+str(msConfig["coord"]["lon"])+" -->"+self.stationCode)
             else:
                 self.stationCode = msConfig["station"]
                 _LOGGER.debug("Using fixed station code : "+msConfig["station"])
-                
+
+        #Validation of post code        
         if(not re.match(r"\d{4}", self.postCode)):
             _LOGGER.error("Postcode : "+self.postCode+" is not a swizerland post code")
+            raise vol.error.Invalid("Station Code : "+self.stationCode+" is not a swizerland post code.  Please consult : https://github.com/websylv/homeassistant-meteoswiss")
+        
+        #Validation of station code
+        if(not re.match(r"\w{3}",self.stationCode) and not self.stationCode == "auto"):
+            _LOGGER.error("Station Code : "+self.stationCode+" is not a valid station code")
+            raise vol.error.Invalid("Station Code : "+self.stationCode+" is not a valid station code. Please consult : https://github.com/websylv/homeassistant-meteoswiss")
+       
+
         with async_timeout.timeout(10):
             allStation = ms.get_all_stations()
 
-            #Manage manual station name
-            if(msConfig["name"]== "auto"):
-                self._station_name = allStation[self.stationCode]['name']
-            else:
-                self._station_name = msConfig["name"]
+        try:
+            none = allStation[self.stationCode]
+        except:
+            _LOGGER.error("Station code : "+self.stationCode+" not found ! please check station list in : https://data.geo.admin.ch/ch.meteoschweiz.messwerte-aktuell/info/VQHA80_en.txt")
+            raise vol.error.Invalid("Station code : "+self.stationCode+" not found ! please check station list in : https://data.geo.admin.ch/ch.meteoschweiz.messwerte-aktuell/info/VQHA80_en.txt")
+
+        #Manage manual station name
+        if(msConfig["name"]== "auto"):
+            self._station_name = allStation[self.stationCode]['name']
+        else:
+            self._station_name = msConfig["name"]
             
             
         
@@ -192,6 +214,7 @@ class MeteoSwissWeather(WeatherEntity):
         one_day = datetime.timedelta(days=1)
         fcdata_out = []
         for forecast in self._forecastData["data"]["forecasts"]:
+            #calculating date of the forecast
             currentDate = currentDate + one_day
             data_out = {}
             data_out[ATTR_FORECAST_TIME] = currentDate.strftime("%Y-%m-%d")
