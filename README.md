@@ -54,11 +54,11 @@ If not provided the post code is determined by the location configured in home a
 Meteo Swiss weather station code. This code can be found in : [https://data.geo.admin.ch/ch.meteoschweiz.messwerte-aktuell/info/VQHA80_en.txt](https://data.geo.admin.ch/ch.meteoschweiz.messwerte-aktuell/info/VQHA80_en.txt)\
 If not provided the closest from you location is use
 
-In case of problem with the integration
-Please open an issue on github with the logs in debug mode.
-You need to activate componenent debug log by adding "custom_components.meteo-swiss: debug" to your configuration.yaml 
-
 ## Debug
+
+In case of problem with the integration
+Please open an issue on github with the logs in debug mode.  
+You need to activate componenent debug log by adding "custom_components.meteo-swiss: debug" to your configuration.yaml 
 
 ```YAML   
 logger:
