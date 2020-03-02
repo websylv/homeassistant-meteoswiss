@@ -172,7 +172,11 @@ class MeteoSwissWeather(WeatherEntity):
        return self._station_name
     @property
     def temperature(self):
-        return float(self._condition[0]['tre200s0'])
+        try:
+            return float(self._condition[0]['tre200s0'])
+        except:
+            _LOGGER.debug("Error converting temp %s"%self._condition[0]['tre200s0'])
+            return None
     @property
     def pressure(self):
         return float(self._condition[0]['prestas0'])
