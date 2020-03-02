@@ -5,6 +5,6 @@
     "dependencies": [],
     "codeowners": ["websylv"],
     "requirements": [
-        "meteoswiss>=0.0.9"
+        "meteoswiss==0.0.11"
       ]
   }
