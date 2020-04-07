@@ -1,8 +1,9 @@
+from .meteoswiss import *
 import requests
 import json
 import datetime
 import logging
-import meteoswiss as ms
+
 import voluptuous as vol
 import re
 import sys
@@ -106,7 +107,7 @@ class MeteoSwissWeather(WeatherEntity):
         self._condition = None
         self._forecast = None
         self._description = None
-        
+        from .meteoswiss import msGetAllStations
         
         _LOGGER.debug("meteo-swiss INIT")
         with async_timeout.timeout(10):
@@ -122,7 +123,7 @@ class MeteoSwissWeather(WeatherEntity):
 
             #get closest station
             if(msConfig["station"]== "auto"):
-                self.stationCode = ms.get_closest_station(msConfig["coord"]["lat"],msConfig["coord"]["lon"])
+                self.stationCode = msGetClosestStation(msConfig["coord"]["lat"],msConfig["coord"]["lon"])
                 _LOGGER.debug("Automatic station searching closest station of : "+str(msConfig["coord"]["lat"])+" lon : "+str(msConfig["coord"]["lon"])+" -->"+self.stationCode)
             else:
                 self.stationCode = msConfig["station"]
@@ -140,7 +141,7 @@ class MeteoSwissWeather(WeatherEntity):
        
 
         with async_timeout.timeout(10):
-            allStation = ms.get_all_stations()
+            allStation = msGetAllStations()
 
         try:
             none = allStation[self.stationCode]
@@ -161,10 +162,11 @@ class MeteoSwissWeather(WeatherEntity):
     async def async_update(self):
         """Update Condition and Forecast."""
         _LOGGER.debug("meteo-swiss async update")
-        
+        from .meteoswiss import msGetCurrentCondition
+        from .meteoswiss import msGetForecast
         with async_timeout.timeout(10):
-            self._condition = ms.get_current_condition(self.stationCode)
-            self._forecastData = ms.get_forecast(self.postCode)
+            self._condition = msGetCurrentCondition(self.stationCode)
+            self._forecastData = msGetForecast(self.postCode)
             
           
     @property
@@ -210,7 +212,8 @@ class MeteoSwissWeather(WeatherEntity):
         return "Weather forecast from MeteoSwiss (https://www.meteoswiss.admin.ch/)"
     @property
     def wind_bearing(self):
-        return ms.get_wind_bearing(self._condition[0]['dkl010z0'])
+        from .meteoswiss import msGetWindBearing
+        return msGetWindBearing(self._condition[0]['dkl010z0'])
    
     @property
     def forecast(self): 
