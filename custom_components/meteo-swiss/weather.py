@@ -108,6 +108,7 @@ class MeteoSwissWeather(WeatherEntity):
         self._forecast = None
         self._description = None
         from .meteoswiss import msGetAllStations
+        from .meteoswiss import msGetClosestStation
         
         _LOGGER.debug("meteo-swiss INIT")
         with async_timeout.timeout(10):
