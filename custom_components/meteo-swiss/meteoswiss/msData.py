@@ -6,7 +6,9 @@ import logging
 _LOGGER = logging.getLogger(__name__)
 
 def msGetCurrentCondition(station):
+    _LOGGER.debug("Update current condition")
     data = pd.read_csv("https://data.geo.admin.ch/ch.meteoschweiz.messwerte-aktuell/VQHA80.csv",sep=';',header=1)
+    _LOGGER.debug("Get current condition for : %s"%station)
     stationData = data.loc[data['stn'].str.contains(station)]
     stationData = stationData.to_dict('records')
     return stationData
