@@ -167,6 +167,7 @@ class MeteoSwissWeather(WeatherEntity):
         from .meteoswiss import msGetForecast
         with async_timeout.timeout(10):
             self._condition = msGetCurrentCondition(self.stationCode)
+        with async_timeout.timeout(10):
             self._forecastData = msGetForecast(self.postCode)
             
           
