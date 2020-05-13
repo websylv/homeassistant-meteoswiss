@@ -1,13 +1,11 @@
 {
     "domain": "meteo-swiss",
     "name": "Meteo Swiss",
-    "documentation": "https://www.webhu.net",
+    "documentation": "https://github.com/websylv/homeassistant-meteoswiss",
     "dependencies": [],
     "codeowners": ["websylv"],
+    "config_flow": true,
     "requirements": [
-        "requests>=2.22.0",
-        "pandas>=0.25.3",
-        "beautifulsoup4>=4.8.2",
-        "geopy>=1.20.0"
+        "hamsclient>=0.1"
       ]
   }
