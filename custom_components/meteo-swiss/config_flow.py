@@ -28,7 +28,6 @@ class MeteoSwissFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
 
         #check if the station id is found in stastion list
         stationNameChk =  await self.hass.async_add_executor_job(self._client.get_station_name,config[CONF_STATION])
-        print(stationNameChk)
         if(stationNameChk is None):
             self._errors[CONF_STATION] = "invalid_station_id"
             _LOGGER.warning("%s not found in meteo swiss station list"%(config[CONF_STATION]))

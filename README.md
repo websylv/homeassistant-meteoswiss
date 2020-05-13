@@ -12,16 +12,18 @@ Home Assistant meteo swiss integration
   
 
 This intergration have been fully rewrited !
+
 Is no longer compatible with the old configuration.
+
 **Please remove old configuration before upgrade !**
 
 ## Information
 
 Data from meteo swiss official website
 
-The forecast is from the site
+The forecast is extracted from the meteo swiss website
 
-Current conditions
+Current conditions are from official data files.
   
 
 ## Configuration
@@ -71,7 +73,7 @@ logger:
 default: warning
 logs:
 [...]
-
+hamsclient.client: debug
 custom_components.meteo-swiss: debug
 
 ```
