@@ -17,6 +17,17 @@ Is no longer compatible with the old configuration.
 
 **Please remove old configuration before upgrade !**
 
+In home configuration go to weather section and remove all the configuration related to platform meteo-swiss 
+
+```YAML
+weather:
+  [...]
+  - platform: meteo-swiss
+    postcode: 1233
+    [...]
+```
+restart you home assistant and then upgrade to the new version and proccced with the configuration part
+
 ## Information
 
 Data from meteo swiss official website
