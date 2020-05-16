@@ -28,28 +28,28 @@ Current conditions are from official data files.
 
 ## Configuration
 
-Got to home assistant configuration :
+- Got to home assistant configuration :
 
 ![enter image description here](https://github.com/websylv/homeassistant-meteoswiss-img/raw/master/mRemoteNG_br58RnFLHN.png)
   
-Then click on "integrations":
+- Then click on "integrations":
 
 ![enter image description here](https://github.com/websylv/homeassistant-meteoswiss-img/raw/master/jDBoFYSD9L.png)
 
-Than add a new integration
+- Than add a new integration
 
 ![enter image description here](https://github.com/websylv/homeassistant-meteoswiss-img/raw/master/mRemoteNG_Xu9QUdjj7O.png)
   
-Search for "meteo-swiss"
+- Search for "meteo-swiss"
 
 ![enter image description here](https://github.com/websylv/homeassistant-meteoswiss-img/raw/master/mRemoteNG_ZAipe8WopB.png)
 
-By default the integration will try to determine the best settings for you
+- By default the integration will try to determine the best settings for you
 based on you location:
 
 ![enter image description here](https://github.com/websylv/homeassistant-meteoswiss-img/raw/master/mRemoteNG_ZbyekuPQly.png)
 
-If you are note happy with the settings you can update the settings
+If you are not happy with the settings you can update the settings
 
 Meteo Swiss weather station code. This code can be found in : [https://data.geo.admin.ch/ch.meteoschweiz.messwerte-aktuell/info/VQHA80_en.txt](https://data.geo.admin.ch/ch.meteoschweiz.messwerte-aktuell/info/VQHA80_en.txt)\
 
