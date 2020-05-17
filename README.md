@@ -35,7 +35,9 @@ Data from meteo swiss official website
 The forecast is extracted from the meteo swiss website
 
 Current conditions are from official data files.
-  
+
+## Installation
+
 
 ## Configuration
 
