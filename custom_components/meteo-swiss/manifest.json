@@ -6,6 +6,6 @@
     "codeowners": ["websylv"],
     "config_flow": true,
     "requirements": [
-        "hamsclient>=0.1"
+        "hamsclient==0.1.1"
       ]
   }
