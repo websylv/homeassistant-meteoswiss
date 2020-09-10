@@ -2,7 +2,7 @@ from homeassistant.const import (
     SPEED_KILOMETERS_PER_HOUR,
     TEMP_CELSIUS,
     TIME_MINUTES,
-    UNIT_PERCENTAGE,
+    PERCENTAGE,
     TIME_MINUTES,
     PRESSURE_HPA,
     DEGREE,
@@ -74,7 +74,7 @@ SENSOR_TYPES = {
     },
     "humidity": {
         SENSOR_TYPE_NAME: "humidity",
-        SENSOR_TYPE_UNIT: UNIT_PERCENTAGE,
+        SENSOR_TYPE_UNIT: PERCENTAGE,
         SENSOR_TYPE_ICON: "mdi:water-percent",
         SENSOR_TYPE_CLASS: None,
         SENSOR_DATA_ID: "ure200s0"
