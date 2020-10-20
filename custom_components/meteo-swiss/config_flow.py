@@ -1,4 +1,4 @@
-"""Config flow to configure the Meteo-France integration."""
+"""Config flow to configure the Meteo-Swiss integration."""
 import logging
 
 import re
@@ -58,7 +58,7 @@ class MeteoSwissFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
         lon = self.hass.config.longitude
         self._client = await self.hass.async_add_executor_job(meteoSwissClient)
         self._postCode = await self.hass.async_add_executor_job(self._client.getPostCode,lat,lon)
-
+        _LOGGER.debug("Get closest station for Lon : %s - Lat : %s",lon,lat)
         self._station =await self.hass.async_add_executor_job(self._client.get_closest_station,lat,lon) 
         
         if(self._station is not None):
