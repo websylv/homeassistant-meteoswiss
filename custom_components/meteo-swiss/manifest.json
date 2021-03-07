@@ -1,6 +1,7 @@
 {
     "domain": "meteo-swiss",
     "name": "Meteo Swiss",
+    "version": "1.2.0",
     "documentation": "https://github.com/websylv/homeassistant-meteoswiss",
     "dependencies": [],
     "codeowners": ["websylv"],
