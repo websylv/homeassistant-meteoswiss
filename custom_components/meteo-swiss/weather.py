@@ -91,7 +91,7 @@ class MeteoSwissWeather(WeatherEntity):
             return None
     @property
     def state(self):
-        symbolId = self._forecastData["data"]["current"]['weather_symbol_id']
+        symbolId = self._forecastData["currentWeather"]['icon']
         cond =  next(
                     (
                         k
@@ -104,7 +104,7 @@ class MeteoSwissWeather(WeatherEntity):
         return cond
 
     def msSymboldId(self):
-        return self._forecastData["data"]["current"]['weather_symbol_id']
+        return self._forecastData["currentWeather"]['icon']
     
     @property
     def temperature_unit(self):
@@ -143,18 +143,18 @@ class MeteoSwissWeather(WeatherEntity):
         currentDate = datetime.datetime.now()
         one_day = datetime.timedelta(days=1)
         fcdata_out = []
-        for forecast in self._forecastData["data"]["forecasts"]:
+        for forecast in self._forecastData["regionForecast"]:
             #calculating date of the forecast
             currentDate = currentDate + one_day
             data_out = {}
             data_out[ATTR_FORECAST_TIME] = currentDate.strftime("%Y-%m-%d")
-            data_out[ATTR_FORECAST_TEMP_LOW]=float(forecast["temp_low"])
-            data_out[ATTR_FORECAST_TEMP]=float(forecast["temp_high"])
+            data_out[ATTR_FORECAST_TEMP_LOW]=float(forecast["temperatureMin"])
+            data_out[ATTR_FORECAST_TEMP]=float(forecast["temperatureMax"])
             data_out[ATTR_FORECAST_CONDITION] = next(
                             (
                                 k
                                 for k, v in CONDITION_CLASSES.items()
-                                if int(forecast["weather_symbol_id"]) in v
+                                if int(forecast["iconDay"]) in v
                             ),
                             None,
                         )
