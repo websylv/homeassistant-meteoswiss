@@ -143,7 +143,8 @@ class MeteoSwissWeather(WeatherEntity):
         currentDate = datetime.datetime.now()
         one_day = datetime.timedelta(days=1)
         fcdata_out = []
-        for forecast in self._forecastData["regionForecast"]:
+        # Skip the first element - it's the forecast for the current day
+        for forecast in self._forecastData["regionForecast"][1:]:
             #calculating date of the forecast
             currentDate = currentDate + one_day
             data_out = {}
