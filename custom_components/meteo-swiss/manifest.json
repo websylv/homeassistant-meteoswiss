@@ -7,6 +7,7 @@
     "codeowners": ["websylv"],
     "config_flow": true,
     "requirements": [
-        "hamsclient==0.2"
+        "hamsclient==0.2.3",
+        "geopy>=2.0"
       ]
   }
