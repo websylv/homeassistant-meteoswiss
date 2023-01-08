@@ -1,33 +1,7 @@
 from hamsclient import meteoSwissClient
 
-import datetime
 import logging
 
-
-import voluptuous as vol
-import re
-import sys
-
-import  homeassistant.core as hass
-
-from homeassistant.components.weather import (
-    ATTR_FORECAST_CONDITION,
-    ATTR_FORECAST_TEMP,
-    ATTR_FORECAST_TEMP_LOW,
-    ATTR_FORECAST_TIME,
-    WeatherEntity,
-)
-from homeassistant.const import (
-    TEMP_CELSIUS,
-    CONF_LATITUDE, 
-    CONF_LONGITUDE,
-)
-import homeassistant.util.dt as dt_util
-
-from homeassistant.helpers.aiohttp_client import async_get_clientsession
-from homeassistant.util import Throttle
-import homeassistant.helpers.config_validation as cv
-import async_timeout
 from homeassistant.helpers.entity import Entity
 
 from .const import (
