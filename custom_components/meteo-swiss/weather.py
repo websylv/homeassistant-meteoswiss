@@ -3,31 +3,19 @@ from hamsclient import meteoSwissClient
 import datetime
 import logging
 
-
-import voluptuous as vol
-import re
-import sys
-
-import  homeassistant.core as hass
-
 from homeassistant.components.weather import (
     ATTR_FORECAST_CONDITION,
-    ATTR_FORECAST_TEMP,
-    ATTR_FORECAST_TEMP_LOW,
+    ATTR_FORECAST_NATIVE_TEMP,
+    ATTR_FORECAST_NATIVE_TEMP_LOW,
     ATTR_FORECAST_TIME,
-    WeatherEntity,
+    WeatherEntity
 )
 from homeassistant.const import (
     TEMP_CELSIUS,
-    CONF_LATITUDE, 
-    CONF_LONGITUDE,
+    SPEED_KILOMETERS_PER_HOUR,
+    PRESSURE_HPA
 )
-import homeassistant.util.dt as dt_util
 
-from homeassistant.helpers.aiohttp_client import async_get_clientsession
-from homeassistant.util import Throttle
-import homeassistant.helpers.config_validation as cv
-import async_timeout
 _LOGGER = logging.getLogger(__name__)
 
 
@@ -40,8 +28,9 @@ async def async_setup_entry(hass, config, async_add_entities):
     async_add_entities([MeteoSwissWeather(client)], True)
 
 class MeteoSwissWeather(WeatherEntity):
-     #Using openstreetmap to get post code from HA configuration
-    
+    _attr_native_temperature_unit = TEMP_CELSIUS
+    _attr_native_pressure_unit = PRESSURE_HPA
+    _attr_native_wind_speed_unit = SPEED_KILOMETERS_PER_HOUR
     
     def __init__(self,client:meteoSwissClient):
         self._client = client
@@ -61,14 +50,14 @@ class MeteoSwissWeather(WeatherEntity):
        return  self._displayName
 
     @property
-    def temperature(self):
+    def native_temperature(self):
         try:
             return float(self._condition[0]['tre200s0'])
         except:
             _LOGGER.debug("Error converting temp %s"%self._condition[0]['tre200s0'])
             return None
     @property
-    def pressure(self):
+    def native_pressure(self):
         try:
             return float(self._condition[0]['prestas0'])
         except:
@@ -106,10 +95,6 @@ class MeteoSwissWeather(WeatherEntity):
     def msSymboldId(self):
         return self._forecastData["currentWeather"]['icon']
     
-    @property
-    def temperature_unit(self):
-        """Return the unit of measurement."""
-        return TEMP_CELSIUS
 
     @property
     def humidity(self):
@@ -117,8 +102,9 @@ class MeteoSwissWeather(WeatherEntity):
             return float(self._condition[0]['ure200s0'])
         except:
             _LOGGER.debug("Unable to convert humidity value : %s"%(self._condition[0]['ure200s0']))
+    
     @property
-    def wind_speed(self):
+    def native_wind_speed(self):
         try:
             return float(self._condition[0]['fu3010z0'])
         except:
@@ -149,8 +135,8 @@ class MeteoSwissWeather(WeatherEntity):
             currentDate = currentDate + one_day
             data_out = {}
             data_out[ATTR_FORECAST_TIME] = currentDate.strftime("%Y-%m-%d")
-            data_out[ATTR_FORECAST_TEMP_LOW]=float(forecast["temperatureMin"])
-            data_out[ATTR_FORECAST_TEMP]=float(forecast["temperatureMax"])
+            data_out[ATTR_FORECAST_NATIVE_TEMP_LOW]=float(forecast["temperatureMin"])
+            data_out[ATTR_FORECAST_NATIVE_TEMP]=float(forecast["temperatureMax"])
             data_out[ATTR_FORECAST_CONDITION] = next(
                             (
                                 k

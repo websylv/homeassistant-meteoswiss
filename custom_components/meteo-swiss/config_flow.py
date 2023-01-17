@@ -3,7 +3,7 @@ import logging
 
 import re
 import voluptuous as vol
-from homeassistant.const import CONF_NAME, CONF_LATITUDE, CONF_LONGITUDE
+from homeassistant.const import CONF_NAME
 from homeassistant import config_entries
 from homeassistant.core import callback
 from .const import DOMAIN,CONF_POSTCODE,CONF_STATION,CONF_ENABLESENSORS
