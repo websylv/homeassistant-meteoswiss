@@ -130,9 +130,8 @@ class MeteoSwissWeather(WeatherEntity):
         one_day = datetime.timedelta(days=1)
         fcdata_out = []
         # Skip the first element - it's the forecast for the current day
-        for forecast in self._forecastData["regionForecast"][1:]:
+        for forecast in self._forecastData["regionForecast"]:
             #calculating date of the forecast
-            currentDate = currentDate + one_day
             data_out = {}
             data_out[ATTR_FORECAST_TIME] = currentDate.strftime("%Y-%m-%d")
             data_out[ATTR_FORECAST_NATIVE_TEMP_LOW]=float(forecast["temperatureMin"])
@@ -145,6 +144,7 @@ class MeteoSwissWeather(WeatherEntity):
                             ),
                             None,
                         )
+            currentDate = currentDate + one_day
             fcdata_out.append(data_out)
         return fcdata_out
         
