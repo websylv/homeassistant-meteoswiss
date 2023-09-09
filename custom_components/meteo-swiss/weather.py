@@ -1,3 +1,5 @@
+"""Support for the MeteoSwiss service."""
+from __future__ import annotations
 from hamsclient import meteoSwissClient
 
 import datetime
@@ -8,31 +10,42 @@ from homeassistant.components.weather import (
     ATTR_FORECAST_NATIVE_TEMP,
     ATTR_FORECAST_NATIVE_TEMP_LOW,
     ATTR_FORECAST_TIME,
-    WeatherEntity
+    WeatherEntity,
+    WeatherEntityFeature,
+    Forecast
 )
+from homeassistant.config_entries import ConfigEntry
+from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.const import (
     TEMP_CELSIUS,
     SPEED_KILOMETERS_PER_HOUR,
     PRESSURE_HPA
 )
 
+from .const import (
+    CONDITION_CLASSES,
+    CONDITION_MAP,
+    DOMAIN
+)
+from homeassistant.core import HomeAssistant, callback
+
 _LOGGER = logging.getLogger(__name__)
 
-
-from .const import CONDITION_CLASSES,DOMAIN
-
-
-async def async_setup_entry(hass, config, async_add_entities):
-    _LOGGER.info("Starting asnyc setup platform")
-    client =hass.data[DOMAIN]['client']
+async def async_setup_entry(
+    hass: HomeAssistant, config: ConfigEntry, async_add_entities: AddEntitiesCallback
+) -> None:
+    _LOGGER.info("Add a MeteoSwiss weather entity from a config_entry.")
+    client = hass.data[DOMAIN]['client']
     async_add_entities([MeteoSwissWeather(client)], True)
 
 class MeteoSwissWeather(WeatherEntity):
+    _attr_has_entity_name = True
     _attr_native_temperature_unit = TEMP_CELSIUS
     _attr_native_pressure_unit = PRESSURE_HPA
     _attr_native_wind_speed_unit = SPEED_KILOMETERS_PER_HOUR
+    _attr_supported_features = WeatherEntityFeature.FORECAST_DAILY
     
-    def __init__(self,client:meteoSwissClient):
+    def __init__(self, client: meteoSwissClient):
         self._client = client
         if client is None:
             _LOGGER.error("Error empty client")
@@ -114,7 +127,7 @@ class MeteoSwissWeather(WeatherEntity):
     @property
     def attribution(self):
         return "Weather forecast from MeteoSwiss (https://www.meteoswiss.admin.ch/)"
-        
+    
     @property
     def wind_bearing(self):
         try:
@@ -124,8 +137,7 @@ class MeteoSwissWeather(WeatherEntity):
             _LOGGER.debug("Unable to get wind_bearing from data : %s"%(self._condition[0]['dkl010z0']))
             return None
     
-    @property
-    def forecast(self): 
+    def _forecast(self) -> list[Forecast] | None: 
         currentDate = datetime.datetime.now()
         one_day = datetime.timedelta(days=1)
         fcdata_out = []
@@ -137,16 +149,15 @@ class MeteoSwissWeather(WeatherEntity):
             data_out[ATTR_FORECAST_TIME] = currentDate.strftime("%Y-%m-%d")
             data_out[ATTR_FORECAST_NATIVE_TEMP_LOW]=float(forecast["temperatureMin"])
             data_out[ATTR_FORECAST_NATIVE_TEMP]=float(forecast["temperatureMax"])
-            data_out[ATTR_FORECAST_CONDITION] = next(
-                            (
-                                k
-                                for k, v in CONDITION_CLASSES.items()
-                                if int(forecast["iconDay"]) in v
-                            ),
-                            None,
-                        )
+            data_out[ATTR_FORECAST_CONDITION] = CONDITION_MAP.get(forecast["iconDay"])
             fcdata_out.append(data_out)
         return fcdata_out
-        
-        
     
+    @property
+    def forecast(self) -> list[Forecast]:
+        """Return the forecast array."""
+        return self._forecast()
+
+    async def async_forecast_daily(self) -> list[Forecast] | None:
+        """Return the daily forecast in native units."""
+        return self._forecast()
