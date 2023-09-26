@@ -1,8 +1,8 @@
 {
     "config": {
         "abort": {
-            "already_configured": "City already configured",
-            "unknown": "Unknown error: please retry later"
+            "already_configured": "Ville déjà configurée",
+            "unknown": "Erreur inconnue : veuillez réessayer plus tard"
         },
         "error": {
             "invalid_station_name": "Nom de la station invalide",
@@ -12,12 +12,12 @@
         "step": {
             "user": {
                 "data": {
-                    "name": "Display name",
-                    "postcode": "Postcode",
-                    "station": "Realtime weather station",
-                    "enablesensors": "Enable Sensors"
+                    "name": "Nom affiché",
+                    "postcode": "Code postal",
+                    "station": "Station météo en temps réel",
+                    "enablesensors": "Activer les capteurs"
                 },
-                "description": "Enter the postal code and the station name",
+                "description": "Entrez le code postal et le nom de la station",
                 "title": "Meteo Swiss"
             }
         }
