@@ -1,0 +1,25 @@
+{
+    "config": {
+        "abort": {
+            "already_configured": "Mesto je už nakonfigurované",
+            "unknown": "Neznáma chyba: skúste to neskôr"
+        },
+        "error": {
+            "invalid_station_name": "Názov stanice je neplatný, skontrolujte zoznam staníc",
+            "invalid_postcode": "PSČ je neplatné, táto integrácia funguje iba so švajčiarskym PSČ",
+            "invalid_station_id": "Názov stanice sa nenašiel. Zoznam staníc nájdete na https://bit.ly/2zzE36d"
+        },
+        "step": {
+            "user": {
+                "data": {
+                    "name": "Zobraziť meno",
+                    "postcode": "PSČ",
+                    "station": "Meteostanica v reálnom čase",
+                    "enablesensors": "Povoliť snímače"
+                },
+                "description": "Zadajte poštové smerovacie číslo a názov stanice",
+                "title": "Meteo Swiss"
+            }
+        }
+    }
+}
