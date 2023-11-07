@@ -1,3 +1,7 @@
+from __future__ import annotations
+
+from typing import Final
+
 from homeassistant.const import (
     SPEED_KILOMETERS_PER_HOUR,
     TEMP_CELSIUS,
@@ -12,7 +16,6 @@ from homeassistant.const import (
 DOMAIN = "meteo-swiss"
 CONF_POSTCODE = "postcode"
 CONF_STATION = "station"
-CONF_DISPLAYNAME = "displayname"
 CONF_ENABLESENSORS = "enablesensors"
 CONF_FORECASTTYPE= "forecasttype"
 
@@ -20,7 +23,7 @@ CONF_FORECASTTYPE= "forecasttype"
 #ID < 100 for day icons
 #ID > 100 for night icons
 #Meteo swiss has more lvl for cloudy an rainy than home assistant
-CONDITION_CLASSES = {
+CONDITION_CLASSES: Final[dict[str, list[int]]] = {
     "clear-night": [101],
     "cloudy": [5,35,105,135],
     "fog": [27,28,127,128],
@@ -36,6 +39,11 @@ CONDITION_CLASSES = {
     "windy": [],
     "windy-variant": [],
     "exceptional": [],
+}
+CONDITION_MAP = {
+    cond_code: cond_ha
+    for cond_ha, cond_codes in CONDITION_CLASSES.items()
+    for cond_code in cond_codes
 }
 
 SENSOR_TYPE_NAME = "name"
